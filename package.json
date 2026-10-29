@@ -1,0 +1,21 @@
+{
+  "name": "vellum",
+  "productName": "Vellum",
+  "version": "1.0.0",
+  "description": "Live YouTube streams as your Windows desktop wallpaper.",
+  "main": "src/main/main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "package": "node scripts/package.js"
+  },
+  "dependencies": {
+    "koffi": "^3.0.0"
+  },
+  "devDependencies": {
+    "electron": "45.1.0"
+  },
+  "author": "Vellum",
+  "license": "MIT"
+}

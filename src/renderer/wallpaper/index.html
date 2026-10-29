@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>Vellum — Wallpaper</title>
+    <link rel="stylesheet" href="wallpaper.css" />
+  </head>
+  <body>
+    <!--
+      Vellum wallpaper surface.
+
+      Stacking order (bottom -> top):
+        .stage   the 16:9 video surface, cover-cropped by wallpaper.js
+        .veil    optional top/bottom gradient for desktop-icon legibility
+        .screen  idle / tuning / error state screen
+        .shield  transparent click shield; the YouTube iframe itself is
+                 pointer-events:none, so no YouTube hover chrome can ever appear
+
+      This page owns NO visible controls by design: every control lives in the
+      Vellum panel (src/renderer/panel). The page is driven entirely by the full
+      desired state pushed through window.vellumWallpaper.onState().
+    -->
+    <main id="wallpaper" aria-label="Vellum wallpaper">
+      <div class="stage" id="stage">
+        <div class="stage__player" id="player-frame"></div>
+      </div>
+
+      <div class="veil" id="veil" aria-hidden="true"></div>
+
+      <section class="screen" id="screen" data-phase="connecting" role="status" aria-live="polite">
+        <div class="screen__inner">
+          <!-- Hand-drawn 12-ray asterisk mark (Vellum's quiet loading dial). -->
+          <svg class="mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+            <g stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <line x1="39" y1="32" x2="57" y2="32" />
+              <line x1="38.06" y1="35" x2="53.65" y2="44.5" />
+              <line x1="35.5" y1="38.06" x2="44.5" y2="53.65" />
+              <line x1="32" y1="39" x2="32" y2="57" />
+              <line x1="28.5" y1="38.06" x2="19.5" y2="53.65" />
+              <line x1="25.94" y1="35" x2="10.35" y2="44.5" />
+              <line x1="25" y1="32" x2="7" y2="32" />
+              <line x1="25.94" y1="29" x2="10.35" y2="19.5" />
+              <line x1="28.5" y1="25.94" x2="19.5" y2="10.35" />
+              <line x1="32" y1="25" x2="32" y2="7" />
+              <line x1="35.5" y1="25.94" x2="44.5" y2="10.35" />
+              <line x1="38.06" y1="29" x2="53.65" y2="19.5" />
+            </g>
+          </svg>
+
+          <p class="brand">Vellum</p>
+          <h1 class="headline" id="screen-headline">Tuning in</h1>
+          <p class="detail" id="screen-detail">Connecting to YouTube.</p>
+          <p class="hint" id="screen-hint" hidden></p>
+        </div>
+        <p class="preview" id="screen-preview" hidden></p>
+      </section>
+
+      <!-- Swallows pointer input so the embedded player can never receive a hover. -->
+      <div class="shield" id="shield" aria-hidden="true"></div>
+    </main>
+
+    <noscript><p class="noscript">Vellum needs JavaScript enabled to play the wallpaper.</p></noscript>
+
+    <script src="wallpaper.js" defer></script>
+  </body>
+</html>

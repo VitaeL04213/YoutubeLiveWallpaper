@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="color-scheme" content="light" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'none'; img-src 'self' https://i.ytimg.com data:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'none'; media-src 'none'; base-uri 'none'; form-action 'none'"
+  />
+  <title>Vellum</title>
+  <link rel="stylesheet" href="panel.css" />
+</head>
+<body>
+  <svg class="svg-defs" width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+      <g id="vellum-mark">
+        <line x1="13.10" y1="12.00" x2="20.90" y2="12.00"/>
+        <line x1="12.94" y1="12.57" x2="17.83" y2="15.50"/>
+        <line x1="12.57" y1="12.94" x2="16.79" y2="19.97"/>
+        <line x1="11.98" y1="13.10" x2="11.88" y2="19.10"/>
+        <line x1="11.43" y1="12.94" x2="7.47" y2="19.54"/>
+        <line x1="11.06" y1="12.57" x2="6.09" y2="15.55"/>
+        <line x1="10.90" y1="12.02" x2="2.90" y2="12.16"/>
+        <line x1="11.05" y1="11.45" x2="5.76" y2="8.40"/>
+        <line x1="11.43" y1="11.06" x2="7.52" y2="4.54"/>
+        <line x1="12.02" y1="10.90" x2="12.12" y2="5.00"/>
+        <line x1="12.57" y1="11.06" x2="16.74" y2="4.11"/>
+        <line x1="12.95" y1="11.45" x2="17.80" y2="8.65"/>
+      </g>
+    </defs>
+  </svg>
+
+  <div class="stage">
+    <main class="card" id="card" data-status="idle" data-paused="false" data-busy="false" data-has-video="false" aria-label="Vellum control panel">
+      <div class="grain" aria-hidden="true"></div>
+
+      <header class="topbar" id="topbar">
+        <div class="brand">
+          <svg class="mark-svg brand-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#vellum-mark"></use></svg>
+          <span class="wordmark">Vellum</span>
+          <span class="brand-slash" aria-hidden="true"></span>
+          <span class="brand-note">wallpaper</span>
+        </div>
+        <div class="topbar-actions">
+          <span class="status" id="statusPill" data-tone="idle">
+            <i class="status-dot" aria-hidden="true"></i>
+            <span class="status-label" id="statusLabel">Standby</span>
+          </span>
+          <button class="icon-btn" id="settingsBtn" type="button" aria-label="Settings" aria-haspopup="dialog" aria-expanded="false" title="Settings">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M4 7h3.4M13.6 7H20"/>
+              <circle cx="9.5" cy="7" r="2.1"/>
+              <path d="M4 12h8.4M19.1 12H20"/>
+              <circle cx="15" cy="12" r="2.1"/>
+              <path d="M4 17h2M12.6 17H20"/>
+              <circle cx="8.6" cy="17" r="2.1"/>
+            </svg>
+          </button>
+          <button class="icon-btn" id="hideBtn" type="button" aria-label="Hide panel" title="Hide panel">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M4 18h16"/>
+              <path d="M12 4v9"/>
+              <path d="M8.6 9.6 12 13l3.4-3.4"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="panel-body" id="panelBody">
+        <div class="media-frame">
+          <span class="crop crop-tl" aria-hidden="true"></span>
+          <span class="crop crop-tr" aria-hidden="true"></span>
+          <span class="crop crop-bl" aria-hidden="true"></span>
+          <span class="crop crop-br" aria-hidden="true"></span>
+          <section class="media" id="media" aria-label="Stream still">
+            <div class="media-art" aria-hidden="true">
+              <svg class="mark-svg media-mark" viewBox="0 0 24 24"><use href="#vellum-mark"></use></svg>
+            </div>
+            <img class="media-img" id="thumb" alt="" decoding="async" />
+            <div class="media-shade" aria-hidden="true"></div>
+            <div class="media-top">
+              <span class="badge" id="badge"><i class="badge-dot" aria-hidden="true"></i><span id="badgeText">No signal</span></span>
+              <span class="media-quality" id="mediaQuality">Auto</span>
+            </div>
+            <div class="media-bottom">
+              <span class="pulse" id="pulse" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+              <span class="media-caption" id="mediaCaption">select a stream</span>
+            </div>
+          </section>
+        </div>
+
+        <section class="now" aria-labelledby="title">
+          <div class="eyebrow">
+            <span class="eyebrow-text" id="eyebrow">Now playing</span>
+            <span class="eyebrow-rule" aria-hidden="true"></span>
+            <span class="eyebrow-note" id="eyebrowNote">resting</span>
+          </div>
+          <h1 class="title is-placeholder" id="title">A quiet place to watch.</h1>
+          <p class="byline">
+            <span class="channel" id="channel">No stream selected</span>
+            <span class="byline-dot" aria-hidden="true"></span>
+            <span class="meta" id="qualityMeta">YouTube live</span>
+          </p>
+        </section>
+
+        <div class="notice" id="notice" role="status" hidden>
+          <svg class="mark-svg notice-mark" viewBox="0 0 24 24" aria-hidden="true"><use href="#vellum-mark"></use></svg>
+          <div class="notice-copy">
+            <p class="notice-text" id="noticeText"></p>
+            <button class="notice-action" id="noticeAction" type="button" hidden>Reconnect</button>
+          </div>
+        </div>
+
+        <section class="transport" aria-label="Playback controls">
+          <div class="transport-row">
+            <button class="play-btn" id="playBtn" type="button" aria-label="Play" title="Play / pause (Space)">
+              <span class="play-spinner" aria-hidden="true"></span>
+              <svg class="icon icon-play" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M9.4 6.7c0-.8.9-1.3 1.5-.9l8 5.3c.6.4.6 1.3 0 1.7l-8 5.3c-.6.4-1.5-.1-1.5-.9z"/>
+              </svg>
+              <svg class="icon icon-pause" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <rect x="7.8" y="6" width="3" height="12" rx="1.5"/>
+                <rect x="13.2" y="6" width="3" height="12" rx="1.5"/>
+              </svg>
+            </button>
+            <div class="transport-copy">
+              <span class="transport-label" id="transportLabel" aria-live="polite">Standby</span>
+              <span class="transport-sub" id="transportSub">On your wallpaper</span>
+            </div>
+            <div class="transport-tools">
+              <button class="icon-btn ghost" id="reconnectBtn" type="button" aria-label="Reconnect stream" title="Reconnect">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M19.6 12a7.6 7.6 0 1 1-2.2-5.4"/>
+                  <path d="M19.6 4.4v4.3h-4.3"/>
+                </svg>
+              </button>
+              <button class="icon-btn ghost" id="muteBtn" type="button" aria-label="Mute" aria-pressed="false" title="Mute (M)">
+                <svg class="icon icon-volume" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M11.2 6.3 7.3 9.4H4.6v5.2h2.7l3.9 3.1z"/>
+                  <path d="M14.6 9.1a4.2 4.2 0 0 1 0 5.8"/>
+                  <path d="M17.1 6.6a7.7 7.7 0 0 1 0 10.8"/>
+                </svg>
+                <svg class="icon icon-muted" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M11.2 6.3 7.3 9.4H4.6v5.2h2.7l3.9 3.1z"/>
+                  <path d="M15 9.7l4.4 4.6M19.4 9.7 15 14.3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="volume-row">
+            <input class="volume" id="volume" type="range" min="0" max="100" step="1" value="60" aria-label="Volume" />
+            <span class="volume-read"><span id="volumeValue">60</span><span class="volume-pct">%</span></span>
+          </div>
+        </section>
+
+        <section class="quality" aria-labelledby="qualityLabel">
+          <div class="row-head">
+            <span class="row-label" id="qualityLabel">Quality</span>
+            <span class="row-hint" id="qualityHint">Adapts to the stream</span>
+          </div>
+          <div class="chips" id="qualityChips" role="radiogroup" aria-label="Video quality"></div>
+        </section>
+
+        <section class="stream">
+          <button class="stream-toggle" id="streamToggle" type="button" aria-expanded="false" aria-controls="streamForm">
+            <span class="toggle-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false"><path d="M12 5.5v13M5.5 12h13"/></svg>
+            </span>
+            <span class="toggle-label">Change stream</span>
+            <span class="stream-current" id="streamCurrent">youtube.com</span>
+          </button>
+        </section>
+      </div>
+
+      <footer class="foot">
+        <span class="attach" id="attach" data-ok="true">
+          <i class="attach-dot" aria-hidden="true"></i>
+          <span id="attachText">Attached</span>
+        </span>
+        <span class="foot-version" id="footVersion">v1.0.0</span>
+      </footer>
+
+      <form class="stream-form" id="streamForm" hidden novalidate>
+        <div class="field">
+          <input class="stream-input" id="streamInput" type="text" inputmode="url" spellcheck="false" autocomplete="off" placeholder="youtube.com/watch?v=…" aria-describedby="streamNote" />
+          <button class="apply-btn" id="applyBtn" type="submit">Tune in</button>
+        </div>
+        <p class="field-note" id="streamNote" role="status">Paste a live link, or an 11-character video ID.</p>
+      </form>
+
+      <div class="popover" id="settingsPopover" role="dialog" aria-label="Settings" hidden>
+        <div class="popover-head">
+          <span class="popover-title">Settings</span>
+          <button class="icon-btn mini" id="settingsClose" type="button" aria-label="Close settings">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M6.4 6.4l11.2 11.2M17.6 6.4 6.4 17.6"/>
+            </svg>
+          </button>
+        </div>
+        <div class="setting">
+          <div class="setting-copy">
+            <span class="setting-name">Paper veil</span>
+            <span class="setting-desc">A soft shade at the edges, so desktop icons stay legible.</span>
+          </div>
+          <button class="switch" id="veilSwitch" type="button" role="switch" aria-checked="false" aria-label="Paper veil">
+            <span class="switch-knob" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="setting">
+          <div class="setting-copy">
+            <span class="setting-name">Launch at login</span>
+            <span class="setting-desc">Wake Vellum with Windows, quietly.</span>
+          </div>
+          <button class="switch" id="loginSwitch" type="button" role="switch" aria-checked="false" aria-label="Launch at login">
+            <span class="switch-knob" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="popover-foot">
+          <span class="app-info" id="appInfo">Vellum</span>
+          <span class="popover-hint">Space · M</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <button class="mock-chip" id="mockChip" type="button" hidden>Mock · playing</button>
+
+  <script src="panel.js"></script>
+</body>
+</html>

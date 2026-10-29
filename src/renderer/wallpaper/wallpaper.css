@@ -1,0 +1,280 @@
+/* ==========================================================================
+   Vellum — wallpaper renderer styles
+   Warm ink dark palette; deliberately quiet, no visible controls.
+   ========================================================================== */
+
+:root {
+  --ink-950: #080706;
+  --ink-900: #0e0d0b;
+  --ink-800: #14120f;
+  --ink-700: #1b1815;
+  --parchment: #f7f4ed;
+  --parchment-dim: rgba(247, 244, 237, 0.66);
+  --parchment-faint: rgba(247, 244, 237, 0.34);
+  --terracotta: #d97757;
+  --terracotta-deep: #c96442;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --screen-fade: 650ms;
+  --serif: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+  --sans: "Segoe UI", "Segoe UI Variable", system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+body {
+  font-family: var(--sans);
+  color: var(--parchment);
+  cursor: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
+#wallpaper {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+/* --------------------------------------------------------------------------
+   Video stage — always 16:9 and always covering the viewport, so YouTube never
+   letterboxes inside the window. wallpaper.js keeps the pixel size authoritative
+   on resize; the vw/vh rules below are the pre-script fallback.
+   -------------------------------------------------------------------------- */
+.stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100vw;
+  height: 56.25vw;
+  min-width: 177.78vh;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #000;
+}
+
+.stage__player,
+.stage iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  pointer-events: none; /* the player must never receive mouse events */
+  background: #000;
+}
+
+/* --------------------------------------------------------------------------
+   Veil — faint top/bottom gradient only, for desktop-icon legibility.
+   -------------------------------------------------------------------------- */
+.veil {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 420ms var(--ease);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(8, 7, 6, 0.62) 0%,
+      rgba(8, 7, 6, 0.10) 16%,
+      rgba(8, 7, 6, 0) 34%,
+      rgba(8, 7, 6, 0) 66%,
+      rgba(8, 7, 6, 0.12) 84%,
+      rgba(8, 7, 6, 0.64) 100%
+    );
+}
+
+.veil--off {
+  opacity: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Click shield — transparent, above the player, swallows every pointer event.
+   -------------------------------------------------------------------------- */
+.shield {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: auto;
+  cursor: none;
+  background: transparent;
+}
+
+/* --------------------------------------------------------------------------
+   State screen: tuning in / idle / error.
+   -------------------------------------------------------------------------- */
+.screen {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  padding: 8vmin;
+  pointer-events: none;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity var(--screen-fade) var(--ease),
+    visibility 0s linear;
+  background:
+    radial-gradient(120% 90% at 50% 0%, #1b1815 0%, #0e0d0b 58%, #080706 100%);
+}
+
+/* Paper grain, drawn inline so the page stays dependency-free. */
+.screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+.screen--hidden {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--screen-fade) var(--ease),
+    visibility 0s linear var(--screen-fade);
+}
+
+.screen__inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 46rem;
+  text-align: center;
+}
+
+.mark {
+  width: clamp(48px, 7vmin, 76px);
+  height: auto;
+  margin-bottom: clamp(18px, 2.6vmin, 30px);
+  color: var(--terracotta);
+  opacity: 0.9;
+}
+
+/* The mark turns only while the page is actually waiting on something. */
+.screen[data-phase="connecting"] .mark,
+.screen[data-phase="resolving"] .mark,
+.screen[data-phase="loading"] .mark {
+  animation: mark-turn 9s linear infinite;
+}
+
+.screen[data-phase="idle"] .mark {
+  opacity: 0.5;
+  animation: mark-breathe 6.5s ease-in-out infinite;
+}
+
+.screen[data-phase="error"] .mark {
+  color: var(--terracotta-deep);
+  opacity: 0.45;
+}
+
+@keyframes mark-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes mark-breathe {
+  0%,
+  100% {
+    opacity: 0.34;
+  }
+  50% {
+    opacity: 0.62;
+  }
+}
+
+.brand {
+  margin: 0 0 clamp(14px, 2vmin, 22px);
+  font-family: var(--serif);
+  font-size: clamp(11px, 1.45vmin, 14px);
+  font-weight: 400;
+  letter-spacing: 0.44em;
+  text-indent: 0.44em;
+  text-transform: uppercase;
+  color: var(--parchment-faint);
+}
+
+.headline {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(28px, 4.6vmin, 54px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.012em;
+  color: var(--parchment);
+}
+
+.detail {
+  max-width: 42ch;
+  margin: clamp(16px, 2.2vmin, 24px) 0 0;
+  font-size: clamp(13px, 1.7vmin, 17px);
+  line-height: 1.65;
+  color: var(--parchment-dim);
+  overflow-wrap: anywhere;
+}
+
+.hint {
+  margin: clamp(10px, 1.5vmin, 16px) 0 0;
+  font-size: clamp(12px, 1.5vmin, 14px);
+  letter-spacing: 0.02em;
+  color: var(--parchment-faint);
+}
+
+.preview {
+  position: absolute;
+  bottom: clamp(20px, 3.6vmin, 44px);
+  left: 50%;
+  margin: 0;
+  transform: translateX(-50%);
+  font-size: clamp(10px, 1.3vmin, 12px);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: rgba(247, 244, 237, 0.2);
+}
+
+.noscript {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  background: var(--ink-900);
+  color: var(--parchment-dim);
+  font-family: var(--sans);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mark,
+  .screen[data-phase] .mark {
+    animation: none !important;
+  }
+
+  .screen,
+  .screen--hidden,
+  .veil {
+    transition: none !important;
+  }
+}
