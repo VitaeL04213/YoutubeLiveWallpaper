@@ -2,8 +2,6 @@
 
 Vellum 把 YouTube 直播变成 Windows 桌面壁纸：视频贴在桌面图标下面，不占任务栏，不弹浏览器窗口，也不会出现 YouTube 的边栏、标题栏或鼠标悬停控件。配套的控制面板沿用了 Claude 的视觉语言——羊皮纸底色、衬线标题、赤陶色点缀。
 
-![desktop](docs/screenshot-desktop.jpg)
-
 ![panel](docs/screenshot-panel.jpg)
 
 ## 功能
