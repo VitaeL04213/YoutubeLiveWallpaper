@@ -4,6 +4,14 @@ Vellum 把 YouTube 直播变成 Windows 桌面壁纸：视频贴在桌面图标�
 
 ![panel](docs/screenshot-panel.jpg)
 
+## 下载
+
+从 [Releases](https://github.com/VitaeL04213/YoutubeLiveWallpaper/releases) 下载最新的便携版：
+
+- **Vellum-1.0.0-win-x64.zip**（约 140 MB，解压后约 360 MB，Windows 10/11 x64）
+- 解压后双击 `Vellum.exe` 即可运行，无需安装。
+- 压缩包没有代码签名，首次运行若出现 SmartScreen 提示，选择“更多信息 → 仍要运行”。
+
 ## 功能
 
 - 直播画面作为真正的桌面壁纸（挂在 Explorer 的 WorkerW 上，位于图标之后）
@@ -19,7 +27,7 @@ Vellum 把 YouTube 直播变成 Windows 桌面壁纸：视频贴在桌面图标�
 
 ### 直接运行（推荐）
 
-1. 解压 `dist/Vellum` 文件夹到任意位置（例如 `D:\Apps\Vellum`）。
+1. 解压下载的 `Vellum-1.0.0-win-x64.zip` 到任意位置（例如 `D:\Apps\Vellum`）。
 2. 双击 `Vellum.exe`（或 `Vellum.cmd`）。
 3. 右下角出现 Vellum 面板，桌面壁纸开始播放默认的 Lofi Girl 直播。
 
