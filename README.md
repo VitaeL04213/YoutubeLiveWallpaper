@@ -8,7 +8,7 @@ Vellum 把 YouTube 直播变成 Windows 桌面壁纸：视频贴在桌面图标�
 
 从 [Releases](https://github.com/VitaeL04213/Vellum/releases) 下载最新的便携版：
 
-- **Vellum-1.0.1-win-x64.zip**（约 140 MB，解压后约 360 MB，Windows 10/11 x64）
+- **Vellum-1.0.1-win-x64.zip**（约 152 MB，解压后约 360 MB，Windows 10/11 x64）
 - 解压后双击 `Vellum.exe` 即可运行，无需安装。
 - 压缩包没有代码签名，首次运行若出现 SmartScreen 提示，选择“更多信息 → 仍要运行”。
 
