@@ -81,6 +81,7 @@
     settingsClose: $("settingsClose"),
     veilSwitch: $("veilSwitch"),
     loginSwitch: $("loginSwitch"),
+    autoPlaySwitch: $("autoPlaySwitch"),
     appInfo: $("appInfo"),
     mockChip: $("mockChip")
   };
@@ -355,14 +356,16 @@
     setText(
       dom.transportSub,
       isIdle
-        ? "Add a stream to begin"
+        ? s.url
+          ? "Desktop untouched \u2014 press play"
+          : "Add a stream to begin"
         : s.attached
           ? isError
             ? "Waiting on the desktop"
             : "On your wallpaper"
           : "Not attached to the desktop"
     );
-    setAttr(dom.playBtn, "aria-label", isIdle ? "Add a stream" : paused ? "Play" : "Pause");
+    setAttr(dom.playBtn, "aria-label", isIdle ? (s.url ? "Start stream" : "Add a stream") : paused ? "Play" : "Pause");
     setAttr(dom.playBtn, "aria-pressed", paused ? "false" : "true");
     setAttr(dom.playBtn, "aria-busy", busy ? "true" : "false");
     dom.playBtn.disabled = false;
@@ -384,11 +387,14 @@
     /* settings switches */
     setAttr(dom.veilSwitch, "aria-checked", s.veil ? "true" : "false");
     setAttr(dom.loginSwitch, "aria-checked", s.launchAtLogin ? "true" : "false");
+    setAttr(dom.autoPlaySwitch, "aria-checked", s.autoPlay === false ? "false" : "true");
 
-    /* attachment + version */
-    setAttr(dom.attach, "data-ok", s.attached ? "true" : "false");
-    setText(dom.attachText, s.attached ? "Attached" : "Not attached");
-    setText(dom.footVersion, appInfo && appInfo.version ? "v" + appInfo.version : "v1.0.0");
+    /* attachment + version. Idle/error means the desktop is deliberately clear,
+       which is not a failure. */
+    var desktopClear = !s.attached && (isIdle || isError);
+    setAttr(dom.attach, "data-ok", s.attached ? "true" : desktopClear ? "idle" : "false");
+    setText(dom.attachText, s.attached ? "Attached" : desktopClear ? "Desktop clear" : "Not attached");
+    setText(dom.footVersion, appInfo && appInfo.version ? "v" + appInfo.version : "v1.0.1");
 
     /* stream shortcut */
     setText(dom.streamCurrent, compactUrl(s.url));
@@ -535,7 +541,18 @@
   function togglePlay() {
     if (!state) return;
     if (state.status === "idle") {
-      openStreamForm();
+      // Idle means "nothing on the desktop". With a saved link the play button
+      // starts that stream (the wallpaper only appears once playback does);
+      // without one it opens the stream composer.
+      if (state.url) {
+        state = Object.assign({}, state, { status: "resolving", paused: false, error: null });
+        render();
+        call("setPaused", [false]).catch(function () {
+          flashNotice("Could not start the stream.");
+        });
+      } else {
+        openStreamForm();
+      }
       return;
     }
     if (state.status === "error") {
@@ -767,6 +784,7 @@
       muted: false,
       veil: true,
       launchAtLogin: true,
+      autoPlay: true,
       attached: true,
       error: null,
       panelVisible: true,
@@ -1027,6 +1045,9 @@
     });
     dom.loginSwitch.addEventListener("click", function () {
       applySetting("launchAtLogin", dom.loginSwitch.getAttribute("aria-checked") !== "true");
+    });
+    dom.autoPlaySwitch.addEventListener("click", function () {
+      applySetting("autoPlay", dom.autoPlaySwitch.getAttribute("aria-checked") !== "true");
     });
 
     document.addEventListener("pointerdown", function (event) {

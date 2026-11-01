@@ -62,6 +62,7 @@ const state = {
   muted: config.muted,
   veil: config.veil,
   launchAtLogin: config.launchAtLogin,
+  autoPlay: config.autoPlay,
   attached: false,
   error: null,
   panelVisible: false,
@@ -98,6 +99,7 @@ function schedulePersist() {
       muted: state.muted,
       veil: state.veil,
       launchAtLogin: state.launchAtLogin,
+      autoPlay: state.autoPlay,
     });
   }, 250);
 }
@@ -113,6 +115,7 @@ function patchState(patch, options = {}) {
   if (!changed) return;
   state.updatedAt = Date.now();
   broadcast();
+  syncWallpaperSurface();
   if (wallpaper) {
     // The renderer's quality hints are advisory; the wallpaper controller pins
     // the actual level inside the cross-origin YouTube iframe.
@@ -120,6 +123,21 @@ function patchState(patch, options = {}) {
     if (patch.status === 'playing') wallpaper.reassertQuality();
   }
   if (options.persist !== false) schedulePersist();
+}
+
+// The desktop is only ours while a stream is actually on it. Idle (nothing
+// loaded, e.g. autoplay off at login) and error states leave Explorer's own
+// wallpaper untouched instead of covering it with a black window.
+const WALLPAPER_STATUSES = ['resolving', 'loading', 'playing', 'paused'];
+
+function wallpaperWanted() {
+  return WALLPAPER_STATUSES.includes(state.status);
+}
+
+function syncWallpaperSurface() {
+  if (!wallpaper) return;
+  const wanted = wallpaperWanted();
+  if (wanted !== wallpaper.isActive()) wallpaper.setActive(wanted);
 }
 
 function log(level, message) {
@@ -193,9 +211,12 @@ async function reconnect() {
 function setPaused(paused) {
   const next = !!paused;
   if (!next && (state.status === 'error' || state.status === 'idle')) {
-    reconnect();
+    // The panel's play button doubles as "start the configured stream" while
+    // nothing is running (autoplay off, or after an error).
+    if (state.url) reconnect();
     return;
   }
+  if (next && !state.videoId) return;
   patchState({
     paused: next,
     status: next ? 'paused' : state.videoId ? 'playing' : 'idle',
@@ -229,6 +250,10 @@ function setSetting(key, value) {
   if (key === 'launchAtLogin') {
     patchState({ launchAtLogin: !!value });
     applyLaunchAtLogin(!!value);
+    return { ok: true };
+  }
+  if (key === 'autoPlay') {
+    patchState({ autoPlay: !!value });
     return { ok: true };
   }
   return { ok: false, error: 'Unknown setting' };
@@ -394,6 +419,7 @@ async function boot() {
     muted: config.muted,
     veil: config.veil,
     launchAtLogin: config.launchAtLogin,
+    autoPlay: config.autoPlay,
   });
 
   try {
@@ -436,7 +462,9 @@ async function boot() {
     },
     onLog: log,
   });
-  wallpaper.start();
+  // Starts with no desktop window at all; it is created the moment a stream
+  // begins loading (see syncWallpaperSurface).
+  wallpaper.start({ active: false });
   wallpaper.setQuality(state.quality);
 
   tray = createTray({
@@ -476,7 +504,11 @@ async function boot() {
     setTimeout(() => showPanel(), 650);
   }
 
-  await loadStream(config.url);
+  if (state.autoPlay) {
+    await loadStream(config.url);
+  } else {
+    log('info', 'autoplay is off; waiting for play');
+  }
   broadcast();
 }
 
@@ -519,6 +551,7 @@ if (!gotLock) {
         muted: state.muted,
         veil: state.veil,
         launchAtLogin: state.launchAtLogin,
+        autoPlay: state.autoPlay,
       });
     } catch (_) {
       /* ignore */

@@ -34,6 +34,7 @@ interface VellumState {
   muted: boolean;
   veil: boolean;               // subtle top/bottom gradient over wallpaper for icon legibility
   launchAtLogin: boolean;
+  autoPlay: boolean;           // start the configured stream when the app launches; false = wake idle
   attached: boolean;           // wallpaper window successfully parented to WorkerW
   error: string | null;        // human-readable error, shown in panel
   panelVisible: boolean;
@@ -42,6 +43,14 @@ interface VellumState {
 
 interface AppInfo { version: string; platform: string; electron: string; }
 ```
+
+## Desktop ownership
+
+Vellum only parents a window to WorkerW while it has something to show. The wallpaper window
+exists for status `resolving | loading | playing | paused` and is destroyed for `idle | error`
+(autoplay off at login, no stream started yet, stream failed). This keeps the user's own Windows
+wallpaper visible whenever Vellum is not actually playing something. Recreating the window on the
+next activation is the reliable attach path (see src/main/wallpaper.js).
 
 ## Panel preload API — `window.vellum` (implemented by Lead)
 
@@ -56,7 +65,7 @@ window.vellum.setVolume(v: number): Promise<void>
 window.vellum.setMuted(m: boolean): Promise<void>
 window.vellum.loadStream(url: string): Promise<{ ok: boolean; error?: string }>
 window.vellum.reconnect(): Promise<void>
-window.vellum.setSetting(key: 'veil' | 'launchAtLogin', value: boolean): Promise<void>
+window.vellum.setSetting(key: 'veil' | 'launchAtLogin' | 'autoPlay', value: boolean): Promise<void>
 window.vellum.hidePanel(): void
 window.vellum.getAppInfo(): Promise<AppInfo>
 window.vellum.onPanelShown(cb: () => void): () => void   // reselect/refresh on show

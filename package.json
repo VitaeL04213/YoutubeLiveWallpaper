@@ -1,7 +1,7 @@
 {
   "name": "vellum",
   "productName": "Vellum",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Live YouTube streams as your Windows desktop wallpaper.",
   "main": "src/main/main.js",
   "private": true,

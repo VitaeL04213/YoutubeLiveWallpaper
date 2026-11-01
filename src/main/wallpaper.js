@@ -10,6 +10,8 @@ const win32 = require('./native/win32');
  * lives behind the desktop icons instead of above every window.
  */
 const QUALITY_ORDER = ['hd2160', 'hd1440', 'hd1080', 'hd720', 'large', 'medium', 'small', 'tiny'];
+// Grace period for a freshly created wallpaper window to finish its first load.
+const LOAD_GRACE_MS = 20000;
 
 /**
  * The YouTube embed runs in a cross-origin iframe, so the renderer cannot reach
@@ -26,9 +28,17 @@ function createWallpaperController(options) {
   let attached = false;
   let watchdogTimer = null;
   let attachTimer = null;
+  // When the page is still fetching (a cold YouTube embed can take a few
+  // seconds) the watchdog must not tear the window down underneath it.
+  let createdAt = 0;
   let stopped = false;
+  // Vellum only owns the desktop while a stream is actually being shown. When
+  // there is nothing to play (idle / autoplay off / stream error) the window is
+  // destroyed so the user's own Windows wallpaper stays visible.
+  let active = true;
   let wantedQuality = 'auto';
-  let qualityTimer = null;
+  let qualityDebounce = null;
+  let qualityInterval = null;
   let qualityLog = '';
 
   function displayInfo() {
@@ -55,7 +65,7 @@ function createWallpaperController(options) {
   }
 
   function attach() {
-    if (stopped || !win || win.isDestroyed()) return false;
+    if (stopped || !active || !win || win.isDestroyed()) return false;
     const info = displayInfo();
     if (!hwnd || !win32.isWindow(hwnd)) {
       try {
@@ -86,6 +96,7 @@ function createWallpaperController(options) {
   }
 
   function destroyWindow() {
+    clearTimeout(attachTimer);
     if (!win || win.isDestroyed()) return;
     try {
       if (hwnd && win32.isWindow(hwnd)) win32.detachWindow(hwnd);
@@ -171,14 +182,14 @@ function createWallpaperController(options) {
 
   function scheduleQualityLock() {
     if (stopped) return;
-    clearTimeout(qualityTimer);
-    qualityTimer = setTimeout(() => {
+    clearTimeout(qualityDebounce);
+    qualityDebounce = setTimeout(() => {
       applyQualityLock().catch(() => {});
     }, 400);
   }
 
   function createWindow() {
-    if (stopped) return;
+    if (stopped || !active || (win && !win.isDestroyed())) return;
     const info = displayInfo();
     win = new BrowserWindow({
       x: info.dip.x,
@@ -210,6 +221,7 @@ function createWallpaperController(options) {
       },
     });
 
+    createdAt = Date.now();
     win.setMenuBarVisibility(false);
     win.setIgnoreMouseEvents(true);
     win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
@@ -265,12 +277,16 @@ function createWallpaperController(options) {
   }
 
   function watchdog() {
-    if (stopped) return;
+    if (stopped || !active) return;
     if (!win || win.isDestroyed()) {
       recreate();
       return;
     }
     if (!hwnd || !win32.isWindow(hwnd)) {
+      // Still fetching the page: give the load a fair chance before recycling
+      // the window (recreating it would abort the in-flight navigation).
+      const loading = win.webContents.isLoadingMainFrame();
+      if (loading && Date.now() - createdAt < LOAD_GRACE_MS) return;
       recreate();
       return;
     }
@@ -284,7 +300,7 @@ function createWallpaperController(options) {
   }
 
   function resize() {
-    if (stopped) return;
+    if (stopped || !active) return;
     const info = displayInfo();
     if (!win || win.isDestroyed()) {
       createWindow();
@@ -298,31 +314,52 @@ function createWallpaperController(options) {
     attach();
   }
 
-  function start() {
+  function start(startOptions) {
     stopped = false;
-    createWindow();
+    active = !(startOptions && startOptions.active === false);
+    if (active) createWindow();
     clearInterval(watchdogTimer);
     watchdogTimer = setInterval(watchdog, 4000);
     // Live streams re-negotiate their quality ladder over time (reconnects,
     // ad-free segment changes), and YouTube's ABR drifts back down; keep the
     // chosen level pinned.
-    clearInterval(qualityTimer);
-    qualityTimer = setInterval(() => {
+    clearInterval(qualityInterval);
+    qualityInterval = setInterval(() => {
       applyQualityLock().catch(() => {});
     }, 12000);
   }
 
+  /**
+   * Bring the wallpaper surface on screen, or take it away entirely. Taking it
+   * away destroys the window (rather than hiding it) so Explorer's own wallpaper
+   * shows through; the next activation recreates the page from scratch, which is
+   * the only attach path that reliably presents frames.
+   */
+  function setActive(next) {
+    if (stopped) return;
+    const wanted = !!next;
+    if (wanted === active) return;
+    active = wanted;
+    if (active) {
+      createWindow();
+      scheduleQualityLock();
+    } else {
+      destroyWindow();
+    }
+  }
+
   function stop() {
     stopped = true;
+    active = false;
     clearInterval(watchdogTimer);
-    clearInterval(qualityTimer);
+    clearInterval(qualityInterval);
     clearTimeout(attachTimer);
-    clearTimeout(qualityTimer);
+    clearTimeout(qualityDebounce);
     destroyWindow();
   }
 
   function reload() {
-    if (!win || win.isDestroyed()) return;
+    if (!active || !win || win.isDestroyed()) return;
     try {
       win.webContents.reloadIgnoringCache();
     } catch (_) {
@@ -344,6 +381,8 @@ function createWallpaperController(options) {
     reload,
     resize,
     attach,
+    setActive,
+    isActive: () => active,
     setQuality,
     reassertQuality: () => applyQualityLock().catch(() => {}),
     isAttached: () => attached,

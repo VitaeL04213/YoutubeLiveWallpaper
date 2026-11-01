@@ -48,10 +48,10 @@ function createTray(options) {
         click: () => options.togglePanel(),
       },
       {
-        label: paused ? 'Resume wallpaper' : 'Pause wallpaper',
+        label: paused ? 'Resume wallpaper' : state.status === 'idle' || state.status === 'error' ? 'Start stream' : 'Pause wallpaper',
         accelerator: 'CommandOrControl+Alt+P',
-        enabled: state.status !== 'idle',
-        click: () => options.setPaused(!paused),
+        enabled: state.status !== 'idle' || !!state.url,
+        click: () => options.setPaused(state.status === 'idle' || state.status === 'error' ? false : !paused),
       },
       { type: 'separator' },
       {
@@ -87,6 +87,12 @@ function createTray(options) {
         type: 'checkbox',
         checked: !!state.launchAtLogin,
         click: (item) => options.setSetting('launchAtLogin', item.checked),
+      },
+      {
+        label: 'Play stream on launch',
+        type: 'checkbox',
+        checked: !!state.autoPlay,
+        click: (item) => options.setSetting('autoPlay', item.checked),
       },
       { type: 'separator' },
       { label: 'Quit Vellum', click: () => options.quit() },

@@ -8,7 +8,7 @@ Vellum 把 YouTube 直播变成 Windows 桌面壁纸：视频贴在桌面图标�
 
 从 [Releases](https://github.com/VitaeL04213/Vellum/releases) 下载最新的便携版：
 
-- **Vellum-1.0.0-win-x64.zip**（约 140 MB，解压后约 360 MB，Windows 10/11 x64）
+- **Vellum-1.0.1-win-x64.zip**（约 140 MB，解压后约 360 MB，Windows 10/11 x64）
 - 解压后双击 `Vellum.exe` 即可运行，无需安装。
 - 压缩包没有代码签名，首次运行若出现 SmartScreen 提示，选择“更多信息 → 仍要运行”。
 
@@ -21,6 +21,8 @@ Vellum 把 YouTube 直播变成 Windows 桌面壁纸：视频贴在桌面图标�
 - 控制面板：正在播放的标题、频道、当前画质、缩略图、直播状态、换流输入框
 - 系统托盘菜单 + 全局快捷键
 - 开机自启（可选）、无边框面板、关闭面板后壁纸继续播放
+- 启动播放开关：关掉后 Vellum 可以随 Windows 静默启动，但不自动播放直播；此时桌面保持你自己的壁纸，按播放才接管桌面
+- 桌面只在有画面时被接管：没开始播放、直播出错时会撤掉壁纸窗口，原桌面壁纸原样可见，不会被黑屏盖住
 - 直播链接支持 `youtube.com/watch?v=…`、`youtu.be/…`、`youtube.com/@频道/live` 以及直接粘贴 11 位视频 ID
 
 ## 使用
@@ -30,6 +32,8 @@ Vellum 把 YouTube 直播变成 Windows 桌面壁纸：视频贴在桌面图标�
 1. 解压下载的 `Vellum-1.0.0-win-x64.zip` 到任意位置（例如 `D:\Apps\Vellum`）。
 2. 双击 `Vellum.exe`（或 `Vellum.cmd`）。
 3. 右下角出现 Vellum 面板，桌面壁纸开始播放默认的 Lofi Girl 直播。
+
+如果希望开机自动启动但不要一开机就出声、就接管桌面：打开面板设置，把 **Play stream on launch** 关掉（同时可打开 **Launch at login**）。之后 Vellum 随 Windows 静默启动、待在托盘里，桌面仍是原来的壁纸；点面板或托盘里的播放/“Start stream” 才开始播放。
 
 若首次启动 Windows 弹出 SmartScreen 提示，选择“更多信息 → 仍要运行”即可（本地构建的可执行文件没有代码签名）。
 
@@ -55,6 +59,8 @@ npm run package
 | 暂停 / 继续 | 面板大按钮；托盘菜单；`Ctrl+Alt+P` |
 | 显示 / 隐藏面板 | 托盘菜单；`Ctrl+Alt+V`；面板右上角隐藏按钮；`Esc` 关闭弹层 |
 | 切换画质 | 面板 QUALITY 一行；托盘 Quality 子菜单 |
+| 开始播放（待机时） | 面板大播放按钮；托盘 “Start stream” |
+| 设置 | 面板右上角设置按钮：Paper veil / Launch at login / Play stream on launch |
 | 静音 | 面板扬声器图标；托盘 Mute |
 | 换直播 | 面板 “Change stream” 粘贴链接；托盘 “Change stream…” |
 | 重新连接 | 面板刷新图标；托盘 Reconnect |
@@ -70,6 +76,8 @@ npm run package
 - 播放看门狗：如果嵌入框架被浏览器丢弃、播放器不再响应或画面停止推进，Vellum 会自动重建播放器；连续失败时会提示“Reconnect”，不会一直停在 Tuning in。
 - 声音来自壁纸窗口，正常跟随系统音量；如果只想看画面，点面板扬声器图标静音。
 - 无边框面板是置顶窗口，拖动面板顶部区域可移动。
+- 待机/出错时 Vellum 不会留下任何窗口在桌面上：壁纸窗口会被销毁，Explorer 自己的壁纸照常显示，因此不会出现“盖住桌面”的黑块。播放、暂停、缓冲期间才占用桌面。
+- “Play stream on launch” 只影响启动时是否自动播放；它不改变已保存的直播链接和画质。
 
 ## 项目结构
 

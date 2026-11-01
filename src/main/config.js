@@ -24,6 +24,7 @@ const DEFAULT_CONFIG = {
   muted: false,
   veil: true,
   launchAtLogin: false,
+  autoPlay: true,
 };
 
 function clampNumber(value, min, max, fallback) {
@@ -43,6 +44,7 @@ function normalize(raw) {
     muted: typeof input.muted === 'boolean' ? input.muted : DEFAULT_CONFIG.muted,
     veil: typeof input.veil === 'boolean' ? input.veil : DEFAULT_CONFIG.veil,
     launchAtLogin: typeof input.launchAtLogin === 'boolean' ? input.launchAtLogin : DEFAULT_CONFIG.launchAtLogin,
+    autoPlay: typeof input.autoPlay === 'boolean' ? input.autoPlay : DEFAULT_CONFIG.autoPlay,
   };
 }
 
